@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.guimaraes.constant.AppConstants;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 
 @RestController
 public class LyricsController {
@@ -17,6 +18,7 @@ public class LyricsController {
 	private static final String RESOURCE_NAME = "/lyric";
 	private static final String CONTEXT_RESOURCE = "/" + AppConstants.VERSION_V1 + RESOURCE_NAME;
 
+	@HystrixCommand(fallbackMethod = "reliable")
 	@GetMapping(CONTEXT_RESOURCE)
 	public ResponseEntity<Lyrics> getLyrics(@RequestParam("trackID") int trackId) {
 
@@ -27,6 +29,10 @@ public class LyricsController {
 			e.printStackTrace();
 		}
 
+		return new ResponseEntity<>(new Lyrics(), HttpStatus.NO_CONTENT);
+	}
+
+	public ResponseEntity<Lyrics> reliable(int trackId) {
 		return new ResponseEntity<>(new Lyrics(), HttpStatus.NO_CONTENT);
 	}
 
